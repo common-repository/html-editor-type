@@ -1,0 +1,31 @@
+# Good caching for yer webfonts
+
+AddType application/vnd.ms-fontobject eot
+AddType font/truetype ttf
+AddType font/opentype otf
+AddType font/opentype woff
+        # ^ hack to avoid chrome console warning: crbug.com/70283
+
+<IfModule mod_expires.c>
+  ExpiresByType font/truetype "access plus 1 month"
+  ExpiresByType font/opentype "access plus 1 month"
+  ExpiresByType font/woff "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType application/vnd.ms-fontobject "access plus 1 month"
+</IfModule>
+
+# Remove ETags
+Header unset ETag
+FileETag None
+
+<FilesMatch "\.(woff|ttf|otf|svg|eot)$">
+	# Far future expires for fonts
+	Header unset Last-Modified
+	Header append Cache-Control "public"
+</FilesMatch>
+
+
+<FilesMatch "\.(ttf|otf|svg|eot)$" >
+	# compress everything except woff, which is already compressed.
+	SetOutputFilter DEFLATE
+</FilesMatch>
